@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS Gradient Generator</title>
+    <meta
+      name="description"
+      content="Create beautiful linear CSS gradients with live preview, angle control, color pickers, and one-click CSS copy."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero card glass">
+        <div>
+          <p class="eyebrow">Micro Tool</p>
+          <h1>CSS Gradient Generator</h1>
+          <p class="hero-copy">
+            Dial in a polished linear gradient, preview it instantly, and copy production-ready CSS.
+          </p>
+        </div>
+        <div class="hero-badges">
+          <span>Live preview</span>
+          <span>Angle control</span>
+          <span>Copy CSS</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="controls card">
+          <div class="section-heading">
+            <h2>Controls</h2>
+            <p>Tune the gradient and watch the preview update in real time.</p>
+          </div>
+
+          <label class="field">
+            <span>Angle</span>
+            <div class="angle-row">
+              <input id="angleRange" type="range" min="0" max="360" value="135" />
+              <input id="angleNumber" type="number" min="0" max="360" value="135" />
+              <span class="unit">deg</span>
+            </div>
+          </label>
+
+          <div class="color-grid">
+            <label class="field color-field">
+              <span>Color A</span>
+              <div class="color-input-wrap">
+                <input id="color1" type="color" value="#7c3aed" />
+                <input id="color1Text" type="text" value="#7C3AED" maxlength="7" spellcheck="false" />
+              </div>
+            </label>
+
+            <label class="field color-field">
+              <span>Color B</span>
+              <div class="color-input-wrap">
+                <input id="color2" type="color" value="#06b6d4" />
+                <input id="color2Text" type="text" value="#06B6D4" maxlength="7" spellcheck="false" />
+              </div>
+            </label>
+          </div>
+
+          <div class="preset-row">
+            <button class="preset" data-angle="135" data-color1="#7C3AED" data-color2="#06B6D4">Aurora</button>
+            <button class="preset" data-angle="120" data-color1="#F97316" data-color2="#EF4444">Sunset</button>
+            <button class="preset" data-angle="160" data-color1="#22C55E" data-color2="#14B8A6">Mint</button>
+          </div>
+        </section>
+
+        <section class="preview-panel card glass">
+          <div class="section-heading">
+            <h2>Preview</h2>
+            <p>What your gradient looks like on a polished surface.</p>
+          </div>
+          <div id="preview" class="preview-swatch">
+            <div class="preview-overlay">
+              <span>Background Preview</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="output card">
+          <div class="section-heading output-heading">
+            <div>
+              <h2>CSS Output</h2>
+              <p>Copy the generated CSS and drop it into your project.</p>
+            </div>
+            <button id="copyButton" class="copy-button">Copy CSS</button>
+          </div>
+          <pre id="cssOutput" class="code-block"></pre>
+          <p id="copyStatus" class="copy-status" aria-live="polite"></p>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
