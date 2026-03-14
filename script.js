@@ -160,16 +160,27 @@ function render() {
 
 async function copyCss() {
   const text = cssString();
+  const fallbackCopy = () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.style.pointerEvents = 'none';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    if (!copied) throw new Error('execCommand copy failed');
+  };
+
   try {
-    if (navigator.clipboard?.writeText) {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
     } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      textarea.remove();
+      fallbackCopy();
     }
     elements.copyStatus.textContent = 'Copied';
     elements.copyStatus.classList.add('success');
@@ -178,7 +189,17 @@ async function copyCss() {
       elements.copyStatus.classList.remove('success');
     }, 1600);
   } catch (error) {
-    elements.copyStatus.textContent = 'Copy failed';
+    try {
+      fallbackCopy();
+      elements.copyStatus.textContent = 'Copied';
+      elements.copyStatus.classList.add('success');
+      window.setTimeout(() => {
+        elements.copyStatus.textContent = 'Ready';
+        elements.copyStatus.classList.remove('success');
+      }, 1600);
+    } catch (fallbackError) {
+      elements.copyStatus.textContent = 'Copy failed';
+    }
   }
 }
 
