@@ -6,7 +6,7 @@
     <title>CSS Gradient Generator</title>
     <meta
       name="description"
-      content="Create beautiful linear CSS gradients with live preview, angle control, color pickers, and one-click CSS copy."
+      content="Create beautiful CSS linear and radial gradients with live preview, presets, color stops, and one-click copy."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,85 +20,89 @@
     <div class="page-shell">
       <header class="hero card glass">
         <div>
-          <p class="eyebrow">Micro Tool</p>
-          <h1>CSS Gradient Generator</h1>
+          <p class="eyebrow">CSS Gradient Generator</p>
+          <h1>Design polished gradients and copy production-ready CSS.</h1>
           <p class="hero-copy">
-            Dial in a polished linear gradient, preview it instantly, and copy production-ready CSS.
+            Build linear or radial gradients with adjustable angle, draggable-style stop controls,
+            curated presets, and instant preview.
           </p>
         </div>
-        <div class="hero-badges">
-          <span>Live preview</span>
-          <span>Angle control</span>
-          <span>Copy CSS</span>
+        <div class="hero-actions">
+          <button id="randomizeBtn" class="btn btn-secondary">Randomize</button>
+          <button id="copyBtn" class="btn btn-primary">Copy CSS</button>
         </div>
       </header>
 
       <main class="layout">
-        <section class="controls card">
-          <div class="section-heading">
+        <section class="controls card glass">
+          <div class="section-title-row">
             <h2>Controls</h2>
-            <p>Tune the gradient and watch the preview update in real time.</p>
+            <span class="badge">Responsive</span>
           </div>
 
-          <label class="field">
-            <span>Angle</span>
-            <div class="angle-row">
-              <input id="angleRange" type="range" min="0" max="360" value="135" />
-              <input id="angleNumber" type="number" min="0" max="360" value="135" />
-              <span class="unit">deg</span>
+          <div class="control-group">
+            <label for="gradientType">Gradient type</label>
+            <div class="segmented" id="gradientType">
+              <button class="segment active" data-type="linear">Linear</button>
+              <button class="segment" data-type="radial">Radial</button>
             </div>
-          </label>
-
-          <div class="color-grid">
-            <label class="field color-field">
-              <span>Color A</span>
-              <div class="color-input-wrap">
-                <input id="color1" type="color" value="#7c3aed" />
-                <input id="color1Text" type="text" value="#7C3AED" maxlength="7" spellcheck="false" />
-              </div>
-            </label>
-
-            <label class="field color-field">
-              <span>Color B</span>
-              <div class="color-input-wrap">
-                <input id="color2" type="color" value="#06b6d4" />
-                <input id="color2Text" type="text" value="#06B6D4" maxlength="7" spellcheck="false" />
-              </div>
-            </label>
           </div>
 
-          <div class="preset-row">
-            <button class="preset" data-angle="135" data-color1="#7C3AED" data-color2="#06B6D4">Aurora</button>
-            <button class="preset" data-angle="120" data-color1="#F97316" data-color2="#EF4444">Sunset</button>
-            <button class="preset" data-angle="160" data-color1="#22C55E" data-color2="#14B8A6">Mint</button>
+          <div class="control-group" id="angleGroup">
+            <div class="label-row">
+              <label for="angleRange">Angle</label>
+              <input id="angleNumber" type="number" min="0" max="360" value="90" />
+            </div>
+            <input id="angleRange" type="range" min="0" max="360" value="90" />
+          </div>
+
+          <div class="control-group">
+            <div class="section-title-row compact">
+              <label>Color stops</label>
+              <button id="addStopBtn" class="btn btn-ghost btn-small">Add stop</button>
+            </div>
+            <div id="stopsList" class="stops-list"></div>
+          </div>
+
+          <div class="control-group">
+            <div class="section-title-row compact">
+              <label>Presets</label>
+              <span class="muted">One tap to load</span>
+            </div>
+            <div id="presetGrid" class="preset-grid"></div>
           </div>
         </section>
 
-        <section class="preview-panel card glass">
-          <div class="section-heading">
-            <h2>Preview</h2>
-            <p>What your gradient looks like on a polished surface.</p>
-          </div>
-          <div id="preview" class="preview-swatch">
-            <div class="preview-overlay">
-              <span>Background Preview</span>
+        <section class="preview-column">
+          <div class="preview card glass">
+            <div class="section-title-row">
+              <h2>Live preview</h2>
+              <span id="copyStatus" class="status-pill">Ready</span>
             </div>
+            <div id="previewSurface" class="preview-surface"></div>
           </div>
-        </section>
 
-        <section class="output card">
-          <div class="section-heading output-heading">
-            <div>
-              <h2>CSS Output</h2>
-              <p>Copy the generated CSS and drop it into your project.</p>
+          <div class="code-panel card glass">
+            <div class="section-title-row">
+              <h2>Generated CSS</h2>
+              <button id="copySecondaryBtn" class="btn btn-ghost btn-small">Copy</button>
             </div>
-            <button id="copyButton" class="copy-button">Copy CSS</button>
+            <pre><code id="cssOutput"></code></pre>
           </div>
-          <pre id="cssOutput" class="code-block"></pre>
-          <p id="copyStatus" class="copy-status" aria-live="polite"></p>
         </section>
       </main>
     </div>
+
+    <template id="stopTemplate">
+      <div class="stop-row">
+        <input class="stop-color" type="color" />
+        <div class="stop-position-wrap">
+          <input class="stop-position-range" type="range" min="0" max="100" />
+          <input class="stop-position-number" type="number" min="0" max="100" />
+        </div>
+        <button class="btn btn-ghost btn-small stop-remove" type="button">Remove</button>
+      </div>
+    </template>
 
     <script src="script.js"></script>
   </body>

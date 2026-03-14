@@ -1,79 +1,232 @@
-const angleRange = document.getElementById('angleRange');
-const angleNumber = document.getElementById('angleNumber');
-const color1 = document.getElementById('color1');
-const color2 = document.getElementById('color2');
-const color1Text = document.getElementById('color1Text');
-const color2Text = document.getElementById('color2Text');
-const preview = document.getElementById('preview');
-const cssOutput = document.getElementById('cssOutput');
-const copyButton = document.getElementById('copyButton');
-const copyStatus = document.getElementById('copyStatus');
-const presetButtons = document.querySelectorAll('.preset');
+const presets = [
+  {
+    name: 'Aurora Flow',
+    type: 'linear',
+    angle: 120,
+    stops: [
+      { color: '#7c5cff', position: 0 },
+      { color: '#2dd4bf', position: 52 },
+      { color: '#f9a826', position: 100 },
+    ],
+  },
+  {
+    name: 'Sunset Bloom',
+    type: 'linear',
+    angle: 90,
+    stops: [
+      { color: '#ff6b6b', position: 0 },
+      { color: '#f06595', position: 48 },
+      { color: '#845ef7', position: 100 },
+    ],
+  },
+  {
+    name: 'Ocean Mist',
+    type: 'radial',
+    angle: 90,
+    stops: [
+      { color: '#0ea5e9', position: 0 },
+      { color: '#14b8a6', position: 55 },
+      { color: '#0f172a', position: 100 },
+    ],
+  },
+  {
+    name: 'Candy Pop',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff4d6d', position: 0 },
+      { color: '#ffb703', position: 50 },
+      { color: '#8338ec', position: 100 },
+    ],
+  },
+];
 
-function normalizeHex(value) {
-  const trimmed = value.trim().toUpperCase();
-  return /^#[0-9A-F]{6}$/.test(trimmed) ? trimmed : null;
+const state = structuredClone(presets[0]);
+
+const elements = {
+  previewSurface: document.getElementById('previewSurface'),
+  cssOutput: document.getElementById('cssOutput'),
+  stopsList: document.getElementById('stopsList'),
+  presetGrid: document.getElementById('presetGrid'),
+  angleRange: document.getElementById('angleRange'),
+  angleNumber: document.getElementById('angleNumber'),
+  angleGroup: document.getElementById('angleGroup'),
+  copyBtn: document.getElementById('copyBtn'),
+  copySecondaryBtn: document.getElementById('copySecondaryBtn'),
+  copyStatus: document.getElementById('copyStatus'),
+  addStopBtn: document.getElementById('addStopBtn'),
+  randomizeBtn: document.getElementById('randomizeBtn'),
+  stopTemplate: document.getElementById('stopTemplate'),
+  typeButtons: [...document.querySelectorAll('.segment')],
+};
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
-function gradientCss() {
-  return `background: linear-gradient(${angleNumber.value}deg, ${color1.value.toUpperCase()} 0%, ${color2.value.toUpperCase()} 100%);`;
+function gradientString() {
+  const orderedStops = [...state.stops].sort((a, b) => a.position - b.position);
+  const stopString = orderedStops.map((stop) => `${stop.color} ${stop.position}%`).join(', ');
+  return state.type === 'linear'
+    ? `linear-gradient(${state.angle}deg, ${stopString})`
+    : `radial-gradient(circle, ${stopString})`;
+}
+
+function cssString() {
+  return `.gradient-preview {\n  background: ${gradientString()};\n}`;
+}
+
+function renderTypeButtons() {
+  elements.typeButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.type === state.type);
+  });
+  elements.angleGroup.style.display = state.type === 'linear' ? 'block' : 'none';
+}
+
+function renderStops() {
+  elements.stopsList.innerHTML = '';
+  state.stops
+    .sort((a, b) => a.position - b.position)
+    .forEach((stop, index) => {
+      const fragment = elements.stopTemplate.content.cloneNode(true);
+      const row = fragment.querySelector('.stop-row');
+      const colorInput = fragment.querySelector('.stop-color');
+      const rangeInput = fragment.querySelector('.stop-position-range');
+      const numberInput = fragment.querySelector('.stop-position-number');
+      const removeButton = fragment.querySelector('.stop-remove');
+
+      colorInput.value = stop.color;
+      rangeInput.value = stop.position;
+      numberInput.value = stop.position;
+      removeButton.disabled = state.stops.length <= 2;
+
+      colorInput.addEventListener('input', (event) => {
+        state.stops[index].color = event.target.value;
+        render();
+      });
+
+      const syncPosition = (value) => {
+        const nextValue = clamp(Number(value) || 0, 0, 100);
+        state.stops[index].position = nextValue;
+        render();
+      };
+
+      rangeInput.addEventListener('input', (event) => syncPosition(event.target.value));
+      numberInput.addEventListener('input', (event) => syncPosition(event.target.value));
+
+      removeButton.addEventListener('click', () => {
+        if (state.stops.length <= 2) return;
+        state.stops.splice(index, 1);
+        render();
+      });
+
+      row.dataset.index = String(index);
+      elements.stopsList.appendChild(fragment);
+    });
+}
+
+function renderPresets() {
+  elements.presetGrid.innerHTML = '';
+  presets.forEach((preset) => {
+    const button = document.createElement('button');
+    button.className = 'preset-card';
+    button.type = 'button';
+    button.innerHTML = `
+      <div class="preset-swatch" style="background:${preset.type === 'linear' ? `linear-gradient(${preset.angle}deg, ${preset.stops.map((stop) => `${stop.color} ${stop.position}%`).join(', ')})` : `radial-gradient(circle, ${preset.stops.map((stop) => `${stop.color} ${stop.position}%`).join(', ')})`} "></div>
+      <div class="preset-name">${preset.name}</div>
+    `;
+    button.addEventListener('click', () => {
+      Object.assign(state, structuredClone(preset));
+      render();
+    });
+    elements.presetGrid.appendChild(button);
+  });
+}
+
+function renderOutput() {
+  const gradient = gradientString();
+  elements.previewSurface.style.background = gradient;
+  elements.cssOutput.textContent = cssString();
+  elements.angleRange.value = state.angle;
+  elements.angleNumber.value = state.angle;
 }
 
 function render() {
-  const css = gradientCss();
-  preview.style.background = `linear-gradient(${angleNumber.value}deg, ${color1.value}, ${color2.value})`;
-  cssOutput.textContent = [
-    '.gradient-surface {',
-    `  ${css}`,
-    '}'
-  ].join('\n');
+  renderTypeButtons();
+  renderStops();
+  renderPresets();
+  renderOutput();
 }
 
-function syncAngle(value) {
-  const safeValue = Math.max(0, Math.min(360, Number(value) || 0));
-  angleRange.value = safeValue;
-  angleNumber.value = safeValue;
-  render();
-}
-
-function syncColor(picker, textInput, value) {
-  const normalized = normalizeHex(value);
-  if (!normalized) {
-    textInput.value = picker.value.toUpperCase();
-    return;
+async function copyCss() {
+  const text = cssString();
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+    elements.copyStatus.textContent = 'Copied';
+    elements.copyStatus.classList.add('success');
+    window.setTimeout(() => {
+      elements.copyStatus.textContent = 'Ready';
+      elements.copyStatus.classList.remove('success');
+    }, 1600);
+  } catch (error) {
+    elements.copyStatus.textContent = 'Copy failed';
   }
-  picker.value = normalized;
-  textInput.value = normalized;
+}
+
+function randomHex() {
+  return `#${Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, '0')}`;
+}
+
+function randomizeGradient() {
+  state.type = Math.random() > 0.5 ? 'linear' : 'radial';
+  state.angle = Math.floor(Math.random() * 361);
+  state.stops = Array.from({ length: 3 + Math.floor(Math.random() * 2) }, (_, index, array) => ({
+    color: randomHex(),
+    position: Math.round((index / (array.length - 1)) * 100),
+  }));
   render();
 }
 
-angleRange.addEventListener('input', (event) => syncAngle(event.target.value));
-angleNumber.addEventListener('input', (event) => syncAngle(event.target.value));
-
-color1.addEventListener('input', (event) => syncColor(color1, color1Text, event.target.value));
-color2.addEventListener('input', (event) => syncColor(color2, color2Text, event.target.value));
-color1Text.addEventListener('change', (event) => syncColor(color1, color1Text, event.target.value));
-color2Text.addEventListener('change', (event) => syncColor(color2, color2Text, event.target.value));
-
-presetButtons.forEach((button) => {
+elements.typeButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    syncAngle(button.dataset.angle);
-    syncColor(color1, color1Text, button.dataset.color1);
-    syncColor(color2, color2Text, button.dataset.color2);
-    copyStatus.textContent = `Loaded ${button.textContent} preset.`;
+    state.type = button.dataset.type;
+    render();
   });
 });
 
-copyButton.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(cssOutput.textContent);
-    copyStatus.textContent = 'CSS copied to clipboard.';
-  } catch (error) {
-    copyStatus.textContent = 'Clipboard copy failed. You can still select and copy the CSS manually.';
-    console.error(error);
-  }
+elements.angleRange.addEventListener('input', (event) => {
+  state.angle = clamp(Number(event.target.value), 0, 360);
+  renderOutput();
 });
 
-color1Text.value = color1.value.toUpperCase();
-color2Text.value = color2.value.toUpperCase();
+elements.angleNumber.addEventListener('input', (event) => {
+  state.angle = clamp(Number(event.target.value), 0, 360);
+  renderOutput();
+});
+
+elements.addStopBtn.addEventListener('click', () => {
+  if (state.stops.length >= 5) return;
+  const lastPosition = state.stops[state.stops.length - 1]?.position ?? 100;
+  const nextPosition = clamp(lastPosition - 10, 0, 100);
+  state.stops.push({ color: randomHex(), position: nextPosition });
+  render();
+});
+
+elements.randomizeBtn.addEventListener('click', randomizeGradient);
+
+elements.copyBtn.addEventListener('click', copyCss);
+
+elements.copySecondaryBtn.addEventListener('click', copyCss);
+
 render();

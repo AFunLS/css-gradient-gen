@@ -1,41 +1,46 @@
 # CSS Gradient Generator
 
-A polished static web tool for creating linear CSS gradients with live preview, angle control, two color pickers, and one-click CSS copy.
+A polished static web tool for building CSS gradients visually. It supports linear and radial gradients, multiple color stops, presets, randomization, live preview, and one-click CSS copy.
+
+## Live Demo
+
+https://afunls.github.io/css-gradient-gen/
 
 ## Features
 
-- Live gradient preview
-- Angle slider and numeric input
-- Two color pickers with editable hex values
-- Preset gradients for quick inspiration
-- Copyable CSS output
-- Fully static — works on GitHub Pages
+- Linear and radial gradient modes
+- Adjustable angle control for linear gradients
+- Multiple color stops with position controls
+- Curated preset gradients
+- Randomize button for inspiration
+- Live preview panel
+- One-click copy-to-clipboard for generated CSS
+- Responsive layout for desktop and mobile
 
 ## Usage
 
-1. Open the tool.
-2. Adjust the angle.
-3. Pick two colors or load a preset.
-4. Click **Copy CSS**.
-5. Paste the generated CSS into your project.
+1. Choose **Linear** or **Radial**.
+2. Adjust the angle if using a linear gradient.
+3. Edit color stops, positions, or add/remove stops.
+4. Click a preset for a quick starting point or use **Randomize**.
+5. Click **Copy CSS** to copy the generated code.
 
-### Example output
+## Example Output
 
 ```css
-.gradient-surface {
-  background: linear-gradient(135deg, #7C3AED 0%, #06B6D4 100%);
+.gradient-preview {
+  background: linear-gradient(120deg, #7c5cff 0%, #2dd4bf 52%, #f9a826 100%);
 }
 ```
 
-## Local development
+## Screenshot
 
-Open `index.html` directly in a browser, or serve the folder with a static server.
+![CSS Gradient Generator screenshot](assets/css-gradient-generator.png)
 
-```bash
-cd /Users/fty/Documents/Dev/micro-tools/css-gradient-gen
-python3 -m http.server 8124
-```
+## Local Development
 
-## Live site
+Open `index.html` directly in a browser, or serve the directory with a static file server.
 
-https://afunls.github.io/css-gradient-gen/
+## Deployment
+
+This project is deployed with GitHub Pages from the `main` branch root.
